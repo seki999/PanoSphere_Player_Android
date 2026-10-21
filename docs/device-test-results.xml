@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<testsuite name="com.panosphere.player.PlaybackIntegrationTest" tests="6" failures="0" errors="0" skipped="0" time="102.724" timestamp="2026-10-21T10:38:47" hostname="localhost">
+  <properties>
+    <property name="device" value="commander_review_35(AVD) - 15" />
+    <property name="flavor" value="" />
+    <property name="project" value=":app" />
+  </properties>
+  <testcase name="playbackSubtitlesModesAndScreenPolicy" classname="com.panosphere.player.PlaybackIntegrationTest" time="30.452" />
+  <testcase name="gesturesAndStereoEyeExtraction" classname="com.panosphere.player.PlaybackIntegrationTest" time="4.53" />
+  <testcase name="allMediaModesStayAwakePastTimeoutAndPauseAllowsSleep" classname="com.panosphere.player.ScreenTimeoutTest" time="65.173" />
+  <testcase name="privateCopyFallbackRemainsReadable" classname="com.panosphere.player.StorageTest" time="0.037" />
+  <testcase name="migrationPreservesHistory" classname="com.panosphere.player.StorageTest" time="0.08" />
+  <testcase name="databaseRoundTrip" classname="com.panosphere.player.StorageTest" time="0.004" />
+</testsuite>

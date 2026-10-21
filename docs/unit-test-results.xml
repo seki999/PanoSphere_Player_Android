@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.panosphere.player.CoreTest" tests="13" skipped="0" failures="0" errors="0" timestamp="2026-10-21T10:36:56" hostname="GT12_PRO" time="0.069">
+  <properties/>
+  <testcase name="hemisphereLimitsYaw" classname="com.panosphere.player.CoreTest" time="0.007"/>
+  <testcase name="rejectsBrokenTime" classname="com.panosphere.player.CoreTest" time="0.044"/>
+  <testcase name="parsesAssFormatAndCommas" classname="com.panosphere.player.CoreTest" time="0.005"/>
+  <testcase name="rejectsEmpty" classname="com.panosphere.player.CoreTest" time="0.0"/>
+  <testcase name="modesRemainDistinct" classname="com.panosphere.player.CoreTest" time="0.001"/>
+  <testcase name="utf16Supported" classname="com.panosphere.player.CoreTest" time="0.001"/>
+  <testcase name="sphereWrapNotClamped" classname="com.panosphere.player.CoreTest" time="0.0"/>
+  <testcase name="parsesVttSettings" classname="com.panosphere.player.CoreTest" time="0.001"/>
+  <testcase name="awakeRequiresAllConditions" classname="com.panosphere.player.CoreTest" time="0.001"/>
+  <testcase name="offsetCanAdvanceAndDelay" classname="com.panosphere.player.CoreTest" time="0.0"/>
+  <testcase name="rejectsOutOfRangeTimestamp" classname="com.panosphere.player.CoreTest" time="0.0"/>
+  <testcase name="hemisphereFrustumNeverCrossesRearPlane" classname="com.panosphere.player.CoreTest" time="0.006"/>
+  <testcase name="parsesSrtBom" classname="com.panosphere.player.CoreTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
