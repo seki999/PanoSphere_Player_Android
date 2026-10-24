@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.panosphere.player.PlaybackCompletionPolicyTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-10-24T22:03:56" hostname="GT12_PRO" time="0.001">
+  <properties/>
+  <testcase name="musicKeepsItsQueueBehavior" classname="com.panosphere.player.PlaybackCompletionPolicyTest" time="0.001"/>
+  <testcase name="staleListLoopCannotAdvanceVideo" classname="com.panosphere.player.PlaybackCompletionPolicyTest" time="0.0"/>
+  <testcase name="videoStopsEvenWhenAnotherItemExists" classname="com.panosphere.player.PlaybackCompletionPolicyTest" time="0.0"/>
+  <testcase name="singleVideoLoopRemainsAvailable" classname="com.panosphere.player.PlaybackCompletionPolicyTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

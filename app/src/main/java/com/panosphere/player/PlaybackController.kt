@@ -65,10 +65,18 @@ class PlaybackController(app: Application): AndroidViewModel(app) {
     viewModelScope.launch {
      if(generation!=playbackGeneration || player.playbackState!=Player.STATE_ENDED || !player.playWhenReady) return@launch
      save()
-     when(repeatMode) {
-      Player.REPEAT_MODE_ONE -> {player.seekTo(0);play()}
-      Player.REPEAT_MODE_ALL -> next(1)
-      else -> if(queue.indexOfFirst {it.uri==current?.uri}<queue.lastIndex) next(1)
+     val hasNext=queue.indexOfFirst {it.uri==current?.uri} in 0 until queue.lastIndex
+     when(PlaybackCompletionPolicy.decide(current?.music==true,repeatMode,hasNext)) {
+      CompletionAction.REPEAT_CURRENT -> {player.seekTo(0);play()}
+      CompletionAction.ADVANCE -> next(1)
+      CompletionAction.STOP -> {
+       stop()
+       if(current?.music==false) {
+        player.seekTo(0)
+        position=0
+        save()
+       }
+      }
      }
     }
    }
@@ -147,6 +155,7 @@ class PlaybackController(app: Application): AndroidViewModel(app) {
    if(repeatMode==Player.REPEAT_MODE_ONE)repeatMode=repeatBeforePanorama
    panoramaLoopApplied=false
   }
+  if(current?.let {!it.music && !it.image}==true && repeatMode==Player.REPEAT_MODE_ALL) repeatMode=Player.REPEAT_MODE_OFF
  }
  fun changeMode(value: PlaybackMode) {mode=value;update {copy(mode=value.name)};applyPanoramaLoopDefault()}
  fun next(direction: Int) { if(queue.isEmpty()) return; val index=queue.indexOfFirst { it.uri==current?.uri }; val next=if(player.shuffleModeEnabled) queue.indices.random() else Math.floorMod(index+direction,queue.size); open(queue[next],queue) }

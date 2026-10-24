@@ -7,3 +7,4 @@ local.properties
 
 /build-*.log
 /test-media/*.ppm
+.kotlin/
