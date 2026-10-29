@@ -26,6 +26,7 @@ class PlaybackController(app: Application): AndroidViewModel(app) {
  var imageBitmap by mutableStateOf<android.graphics.Bitmap?>(null); private set
  var imageViewing by mutableStateOf(false); private set
  var playing by mutableStateOf(false); private set
+ var volume by mutableFloatStateOf(player.volume); private set
  var playbackRequested by mutableStateOf(false); private set
  var metadata by mutableStateOf(MediaMetadata.EMPTY); private set
  private var playbackGeneration=0L
@@ -52,6 +53,7 @@ class PlaybackController(app: Application): AndroidViewModel(app) {
  private var loadedSubtitle: Long = -1
  init {
   player.addListener(object: Player.Listener {
+   override fun onVolumeChanged(value: Float) { volume=value }
       override fun onPlayWhenReadyChanged(value: Boolean, reason: Int) {if(current?.image!=true)playbackRequested=value;refreshAwake()}
    override fun onMediaMetadataChanged(value: MediaMetadata) {metadata=value}
    override fun onEvents(player: Player, events: Player.Events) {if(current?.image!=true) {playing=player.isPlaying;playbackRequested=player.playWhenReady};refreshAwake()}

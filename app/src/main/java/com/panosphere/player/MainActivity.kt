@@ -28,6 +28,7 @@ import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.datastore.preferences.core.*
 import kotlinx.coroutines.launch
 import java.util.Locale
+import kotlin.math.roundToInt
 
 class MainActivity: ComponentActivity() {
  lateinit var controller: PlaybackController; private set
@@ -184,7 +185,7 @@ class MainActivity: ComponentActivity() {
     }
     "播放" -> {
      Text("倍速 ${c.player.playbackParameters.speed}"); Slider(c.player.playbackParameters.speed,{c.player.setPlaybackSpeed(it)},valueRange=0.5f..2f)
-     Text("音量"); Slider(c.player.volume,{c.player.volume=it})
+     Text("音量 ${(c.volume*100).roundToInt()}%"); Slider(c.volume,{c.player.volume=it})
      TextButton(onClick={fit=when(fit) {AspectRatioFrameLayout.RESIZE_MODE_FIT->AspectRatioFrameLayout.RESIZE_MODE_ZOOM;AspectRatioFrameLayout.RESIZE_MODE_ZOOM->AspectRatioFrameLayout.RESIZE_MODE_FIXED_WIDTH;else->AspectRatioFrameLayout.RESIZE_MODE_FIT}}) {Text("画面：${when(fit){0->"适应 / 原始比例";4->"填满裁剪";else->"原始比例按宽度"}}")}
      TextButton(onClick={c.repeatMode=if(record.music) (c.repeatMode+1)%3 else if(c.repeatMode==Player.REPEAT_MODE_ONE) Player.REPEAT_MODE_OFF else Player.REPEAT_MODE_ONE}) {
       Text(if(record.music) "循环：${listOf("关闭","单曲","列表")[c.repeatMode]}" else "循环：${if(c.repeatMode==Player.REPEAT_MODE_ONE) "单视频" else "关闭"}")
