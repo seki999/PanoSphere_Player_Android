@@ -18,7 +18,8 @@ class PlaybackController(app: Application): AndroidViewModel(app) {
  val permissions=UriPermissionManager(app)
  val library=database.media().observe().stateIn(viewModelScope,SharingStarted.Eagerly,emptyList())
  @Volatile private var subtitleOffsetUs=0L
- val player=ExoPlayer.Builder(app,SubtitleRenderersFactory(app) {subtitleOffsetUs}).build().apply {
+ @Volatile private var softwareVideoFallback=false
+ val player=ExoPlayer.Builder(app,SubtitleRenderersFactory(app,{softwareVideoFallback}) {subtitleOffsetUs}).build().apply {
   setAudioAttributes(AudioAttributes.Builder().setUsage(C.USAGE_MEDIA).setContentType(C.AUDIO_CONTENT_TYPE_MOVIE).build(),true)
   setHandleAudioBecomingNoisy(true)
  }
@@ -58,7 +59,22 @@ class PlaybackController(app: Application): AndroidViewModel(app) {
    override fun onMediaMetadataChanged(value: MediaMetadata) {metadata=value}
    override fun onEvents(player: Player, events: Player.Events) {if(current?.image!=true) {playing=player.isPlaying;playbackRequested=player.playWhenReady};refreshAwake()}
    override fun onIsPlayingChanged(value: Boolean) { if(current?.image!=true)playing=player.isPlaying; refreshAwake(); panorama?.active((imageViewing || player.playWhenReady) && awake?.canPlay()==true); if(!player.isPlaying) save() }
-   override fun onPlayerError(e: PlaybackException) { android.util.Log.e("PanoSphere","Playback error",e); error="播放失败：${e.errorCodeName}\n${e.cause?.message ?: e.message}\n请检查文件权限、封装和设备解码能力。"; playing=false; awake?.update(false) }
+   override fun onPlayerError(e: PlaybackException) {
+    val media=current
+    val isVideo=media!=null && !media.image && !media.music
+    if(SubtitleRenderersFactory.shouldRetryWithSoftwareVideo(e.errorCode,softwareVideoFallback,isVideo)) {
+     android.util.Log.w("PanoSphere","MediaCodec failed (${e.errorCodeName}), retrying with bundled FFmpeg/dav1d software renderer",e)
+     softwareVideoFallback=true
+     val resumePos=player.currentPosition.coerceAtLeast(0).takeIf {it>0} ?: position
+     val shouldPlay=playbackRequested && awake?.canPlay()==true
+     player.setMediaItem(MediaItem.fromUri(media!!.uri))
+     player.prepare()
+     player.seekTo(resumePos)
+     if(shouldPlay) player.play()
+     return
+    }
+    android.util.Log.e("PanoSphere","Playback error",e); error="播放失败：${e.errorCodeName}\n${e.cause?.message ?: e.message}\n请检查文件权限、封装和设备解码能力。"; playing=false; awake?.update(false)
+   }
    override fun onTracksChanged(value: Tracks) { tracks=value }
    override fun onCues(group: androidx.media3.common.text.CueGroup) { embeddedText=group.cues.mapNotNull { it.text }.joinToString("\n") }
    override fun onPlaybackStateChanged(state: Int) {
@@ -109,7 +125,7 @@ class PlaybackController(app: Application): AndroidViewModel(app) {
   } finally { retriever.release() }
  }
  fun open(record: MediaRecord, items: List<MediaRecord> = library.value, autoPlay: Boolean = true) {
-  stop(); error=null; openJob?.cancel(); cueJob?.cancel(); queue=items; imageBitmap=null; cues=emptyList(); embeddedText=""; loadedSubtitle=-1
+  stop(); error=null; softwareVideoFallback=false; openJob?.cancel(); cueJob?.cancel(); queue=items; imageBitmap=null; cues=emptyList(); embeddedText=""; loadedSubtitle=-1
   val requestedGeneration=playbackGeneration
   openJob=viewModelScope.launch {
    current=database.media().get(record.uri) ?: record; mode=PlaybackMode.valueOf(current!!.mode); subtitleOffsetUs=current!!.offset*1000

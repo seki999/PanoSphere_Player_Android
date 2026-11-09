@@ -1,11 +1,11 @@
 plugins { id("com.android.application"); id("org.jetbrains.kotlin.android"); id("org.jetbrains.kotlin.plugin.compose"); id("org.jetbrains.kotlin.kapt") }
 android {
  namespace = "com.panosphere.player"
- compileSdk = 35
+ compileSdk = 36
  defaultConfig { applicationId = "com.panosphere.player"; minSdk = 26; targetSdk = 35; versionCode = 4; versionName = "1.3"; testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner" }
  buildFeatures { compose = true }
  compileOptions { sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }
- kotlinOptions { jvmTarget = "17" }
+ kotlinOptions { jvmTarget = "17"; freeCompilerArgs = listOf("-Xskip-metadata-version-check") }
  testOptions { unitTests.isReturnDefaultValues = true }
 }
 dependencies {
@@ -15,6 +15,7 @@ dependencies {
  implementation("androidx.compose.ui:ui")
  implementation("androidx.media3:media3-exoplayer:1.9.3")
  implementation("androidx.media3:media3-ui:1.9.3")
+ implementation("io.github.anilbeesetti:nextlib-media3ext:1.11.0-0.15.0") { isTransitive = false }
  implementation("androidx.room:room-runtime:2.6.1")
  implementation("androidx.room:room-ktx:2.6.1")
  kapt("androidx.room:room-compiler:2.6.1")

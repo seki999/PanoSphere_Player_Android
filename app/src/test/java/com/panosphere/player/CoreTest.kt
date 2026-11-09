@@ -22,5 +22,20 @@ class CoreTest {
   }
  }
  @Test(expected=IllegalArgumentException::class) fun rejectsOutOfRangeTimestamp() {SubtitleParser.parse("1\n00:99:00,000 --> 01:00:00,000\nx","srt")} @Test fun imageDecodeIsBoundedBeforeAllocation() {assertEquals(1,PanoramaImageLoader.sampleSize(4096,2048));assertEquals(2,PanoramaImageLoader.sampleSize(8192,4096));assertEquals(8,PanoramaImageLoader.sampleSize(20000,10000));assertTrue(20000/PanoramaImageLoader.sampleSize(20000,10000)<=4096)}
- @Test(expected=IllegalArgumentException::class) fun imageDecodeRejectsInvalidSize() {PanoramaImageLoader.sampleSize(0,100)}}
+ @Test(expected=IllegalArgumentException::class) fun imageDecodeRejectsInvalidSize() {PanoramaImageLoader.sampleSize(0,100)}
+ @Test fun excludesPlatformSoftwareMediaCodecAbove4096WhenFfmpegSupported() {
+  assertTrue(SubtitleRenderersFactory.shouldExcludeSoftwareMediaCodec("c2.android.av1-dav1d.decoder",true,4320,2160,true))
+  assertTrue(SubtitleRenderersFactory.shouldExcludeSoftwareMediaCodec("c2.android.av1-dav1d.decoder",false,4320,2160,true))
+  assertTrue(SubtitleRenderersFactory.shouldExcludeSoftwareMediaCodec("OMX.google.hevc.decoder",false,2160,4320,true))
+  assertFalse(SubtitleRenderersFactory.shouldExcludeSoftwareMediaCodec("c2.android.av1-dav1d.decoder",true,4096,2160,true))
+  assertFalse(SubtitleRenderersFactory.shouldExcludeSoftwareMediaCodec("c2.android.av1-dav1d.decoder",true,4320,2160,false))
+  assertFalse(SubtitleRenderersFactory.shouldExcludeSoftwareMediaCodec("c2.qti.av1.decoder",false,4320,2160,true))
+ }
+ @Test fun retriesWithSoftwareVideoOnceOnDecoderErrors() {
+  assertTrue(SubtitleRenderersFactory.shouldRetryWithSoftwareVideo(androidx.media3.common.PlaybackException.ERROR_CODE_DECODER_INIT_FAILED,false,true))
+  assertTrue(SubtitleRenderersFactory.shouldRetryWithSoftwareVideo(androidx.media3.common.PlaybackException.ERROR_CODE_DECODING_FAILED,false,true))
+  assertFalse(SubtitleRenderersFactory.shouldRetryWithSoftwareVideo(androidx.media3.common.PlaybackException.ERROR_CODE_DECODER_INIT_FAILED,true,true))
+  assertFalse(SubtitleRenderersFactory.shouldRetryWithSoftwareVideo(androidx.media3.common.PlaybackException.ERROR_CODE_DECODER_INIT_FAILED,false,false))
+  assertFalse(SubtitleRenderersFactory.shouldRetryWithSoftwareVideo(androidx.media3.common.PlaybackException.ERROR_CODE_IO_FILE_NOT_FOUND,false,true))
+ }}
 
