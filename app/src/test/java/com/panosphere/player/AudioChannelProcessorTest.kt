@@ -14,6 +14,9 @@ class AudioChannelProcessorTest {
         processor.configure(AudioProcessor.AudioFormat(48000, 2, C.ENCODING_PCM_16BIT))
         processor.flush()
 
+        processor.queueInput(AudioProcessor.EMPTY_BUFFER)
+        assertEquals(0, processor.output.remaining())
+
         fun checkFrame(channel: AudioChannel, expectedLeft: Short, expectedRight: Short) {
             processor.channel = channel
             val input = ByteBuffer.allocateDirect(4).order(ByteOrder.nativeOrder())

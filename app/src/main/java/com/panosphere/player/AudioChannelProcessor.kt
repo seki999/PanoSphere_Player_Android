@@ -23,6 +23,8 @@ internal class AudioChannelProcessor : BaseAudioProcessor() {
     }
 
     override fun queueInput(inputBuffer: ByteBuffer) {
+        // Media3 can pass its shared empty buffer when draining the processor chain.
+        if (!inputBuffer.hasRemaining()) return
         val output = replaceOutputBuffer(inputBuffer.remaining())
         val selected = channel
         if (selected == AudioChannel.STEREO) {
