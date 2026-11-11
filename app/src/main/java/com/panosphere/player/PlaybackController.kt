@@ -19,7 +19,16 @@ class PlaybackController(app: Application): AndroidViewModel(app) {
  val library=database.media().observe().stateIn(viewModelScope,SharingStarted.Eagerly,emptyList())
  @Volatile private var subtitleOffsetUs=0L
  @Volatile private var softwareVideoFallback=false
- val player=ExoPlayer.Builder(app,SubtitleRenderersFactory(app,{softwareVideoFallback}) {subtitleOffsetUs}).build().apply {
+ private val audioChannels = AudioChannelProcessor()
+ var audioChannel by mutableStateOf(AudioChannel.STEREO)
+  private set
+
+ fun selectAudioChannel(channel: AudioChannel) {
+  audioChannels.channel = channel
+  audioChannel = channel
+ }
+
+ val player=ExoPlayer.Builder(app,SubtitleRenderersFactory(app,{softwareVideoFallback},audioChannels) {subtitleOffsetUs}).build().apply {
   setAudioAttributes(AudioAttributes.Builder().setUsage(C.USAGE_MEDIA).setContentType(C.AUDIO_CONTENT_TYPE_MOVIE).build(),true)
   setHandleAudioBecomingNoisy(true)
  }

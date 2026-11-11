@@ -6,11 +6,14 @@ import android.os.Handler
 import android.os.Looper
 import androidx.media3.common.C
 import androidx.media3.common.Format
+import androidx.media3.common.MimeTypes
 import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.Renderer
 import androidx.media3.exoplayer.RendererCapabilities
 import androidx.media3.exoplayer.audio.AudioRendererEventListener
 import androidx.media3.exoplayer.audio.AudioSink
+import androidx.media3.exoplayer.audio.DefaultAudioSink
+import androidx.media3.exoplayer.audio.ForwardingAudioSink
 import androidx.media3.exoplayer.mediacodec.MediaCodecInfo
 import androidx.media3.exoplayer.mediacodec.MediaCodecSelector
 import androidx.media3.exoplayer.text.TextOutput
@@ -25,14 +28,31 @@ import io.github.anilbeesetti.nextlib.media3ext.ffdecoder.FfmpegVideoRenderer
  * and adds bundled FFmpeg/dav1d software renderers for high-resolution (e.g. >4096px VR) or AV1 media
  * where Android's C2 software MediaCodec (`c2.android.av1-dav1d.decoder`) fails due to its 4096px limit.
  */
-class SubtitleRenderersFactory(
+internal class SubtitleRenderersFactory(
  context: Context,
  private val forceSoftwareVideo: () -> Boolean = { false },
+ private val audioChannels: AudioChannelProcessor = AudioChannelProcessor(),
  private val offsetUs: () -> Long
 ): DefaultRenderersFactory(context) {
  init {
   setEnableDecoderFallback(true)
   setExtensionRendererMode(EXTENSION_RENDERER_MODE_ON)
+ }
+
+ override fun buildAudioSink(context: Context, enableFloatOutput: Boolean, enableAudioOutputPlaybackParams: Boolean): AudioSink {
+  val sink = DefaultAudioSink.Builder(context)
+   .setAudioProcessors(arrayOf(audioChannels))
+   .setEnableAudioOutputPlaybackParameters(enableAudioOutputPlaybackParams)
+   .build()
+  // Channel selection needs decoded PCM, including on devices that support passthrough.
+  return object : ForwardingAudioSink(sink) {
+   override fun supportsFormat(format: Format): Boolean =
+    getFormatSupport(format) != AudioSink.SINK_FORMAT_UNSUPPORTED
+
+   override fun getFormatSupport(format: Format): Int =
+    if (format.sampleMimeType == MimeTypes.AUDIO_RAW) super.getFormatSupport(format)
+    else AudioSink.SINK_FORMAT_UNSUPPORTED
+  }
  }
 
  override fun buildVideoRenderers(
